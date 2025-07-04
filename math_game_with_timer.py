@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 from fractions import Fraction
+from decimal import Decimal
 
 st.title("🔢 數值大小比較小遊戲")
 
@@ -22,34 +23,22 @@ def generate_number():
 
     return value
 
-def display_number(num):
-    if isinstance(num, Fraction):
-        return f"{num.numerator}/{num.denominator}" if num.denominator != 1 else str(num.numerator)
-    else:
-        return str(num)
-
-# 初始化 session_state
-if "num1" not in st.session_state or "num2" not in st.session_state:
-    while True:
-        n1 = generate_number()
-        n2 = generate_number()
-        if float(n1) != float(n2):
-            st.session_state["num1"] = n1
-            st.session_state["num2"] = n2
-            break
-
-num1 = st.session_state["num1"]
-num2 = st.session_state["num2"]
+# 產生兩個數字
+num1 = generate_number()
+num2 = generate_number()
 
 # 顯示問題
 st.subheader("請問哪個數字比較大？")
-options = [display_number(num1), display_number(num2)]
-choice = st.radio("選擇一個：", options=options)
+choice = st.radio("選擇一個：", options=[str(num1), str(num2)])
 
 # 按鈕判斷
 if st.button("提交答案"):
-    picked = num1 if choice == display_number(num1) else num2
-    other = num2 if picked == num1 else num1
+    if str(num1) == choice:
+        picked = num1
+        other = num2
+    else:
+        picked = num2
+        other = num1
 
     if float(picked) > float(other):
         st.success("✅ 答對了！")
@@ -59,12 +48,5 @@ if st.button("提交答案"):
         st.info("🤔 兩者一樣大哦！")
 
 # 按下可刷新
-if st.button("下一題（重新出題）", type="primary"):
-    st.experimental_rerun()
-    while True:
-        n1 = generate_number()
-        n2 = generate_number()
-        if float(n1) != float(n2):
-            st.session_state["num1"] = n1
-            st.session_state["num2"] = n2
-            st.experimental_rerun()
+st.markdown("---")
+st.button("下一題（重新出題）", type="primary")
